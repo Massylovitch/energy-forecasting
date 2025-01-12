@@ -19,5 +19,4 @@ def get_root_dir(default_value= ".") -> Path:
 ML_PIPELINE_ROOT_DIR = get_root_dir()
 OUTPUT_DIR = ML_PIPELINE_ROOT_DIR / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-print(ML_PIPELINE_ROOT_DIR)
 SETTINGS = load_env_vars(root_dir=ML_PIPELINE_ROOT_DIR)
