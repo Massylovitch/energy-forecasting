@@ -1,7 +1,7 @@
 from sktime.transformations.base import BaseTransformer
 
 
-class AttacvhAreaConsumerType(BaseTransformer):
+class AttachAreaConsumerType(BaseTransformer):
 
     def _transform(self, X, y=None):
         X["area_exog"] = X.index.get_level_values(0)

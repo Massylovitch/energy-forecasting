@@ -23,7 +23,6 @@ def init_wandb_run(
     project=settings.SETTINGS["WANDB_PROJECT"],
     entity=settings.SETTINGS["WANDB_ENTITY"],
 ):
-    print("entityentityentity", entity)
     if add_timestamp_to_name:
         name = f"{name}_{pd.Timestamp.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 
