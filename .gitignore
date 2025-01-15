@@ -6,3 +6,5 @@
 output/
 *.zip
 wandb/
+artifacts/
+*.json

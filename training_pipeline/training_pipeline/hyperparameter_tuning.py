@@ -98,7 +98,7 @@ def train_model_cv(model, y_train, X_train, fh, k=3):
     results = cv_evaluate(
         forecaster=model,
         y=y_train,
-        # X=X_train,
+        X=X_train,
         cv=cv,
         strategy="refit",
         scoring=MeanAbsolutePercentageError(symmetric=False),
