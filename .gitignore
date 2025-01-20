@@ -8,3 +8,4 @@ output/
 wandb/
 artifacts/
 *.json
+.htpasswd
