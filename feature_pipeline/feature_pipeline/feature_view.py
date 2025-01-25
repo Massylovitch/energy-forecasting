@@ -62,7 +62,7 @@ def create(
     )
 
     feature_view.create_training_data(
-        descrption="Energy consumption training dataset",
+        description="Energy consumption training dataset",
         data_format="csv",
         start_time=start_datetime,
         end_time=end_datetime,
