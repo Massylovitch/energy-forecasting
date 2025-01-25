@@ -9,3 +9,5 @@ wandb/
 artifacts/
 *.json
 .htpasswd
+*.gz
+*.whl
