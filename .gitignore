@@ -11,3 +11,4 @@ artifacts/
 .htpasswd
 *.gz
 *.whl
+logs/

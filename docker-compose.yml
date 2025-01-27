@@ -4,7 +4,7 @@ services:
   pypi-server:
     image: pypiserver/pypiserver:latest
     ports:
-      - 8080:8080
+      - 80:8080
     volumes:
       - type: bind
         source: ./
