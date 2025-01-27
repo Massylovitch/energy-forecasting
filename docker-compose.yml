@@ -3,15 +3,17 @@ version: '3.7'
 services:
   pypi-server:
     image: pypiserver/pypiserver:latest
-    platform: linux/amd64
-    restart: always
     ports:
-      - "80:8080"
+      - 8080:8080
     volumes:
-      - ~/.htpasswd:/data/.htpasswd
-    command:
-      - run
-      - -P
-      - .htpasswd/htpasswd.txt
-      - --overwrite
+      - type: bind
+        source: ./
+        target: /data/auth
+      - type: volume
+        source: pypi-server
+        target: /data/packages
+    command: -P /data/auth/.htpasswd -a update,download,list /data/packages
+    restart: always
 
+volumes:
+  pypi-server:

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "energy-forcasting"
+name = "feature-pipeline"
 version = "0.1.0"
 description = ""
 authors = ["Massyl GH <massyl-6@hotmail.fr>"]
