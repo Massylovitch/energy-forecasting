@@ -50,3 +50,27 @@ def save_json(data, file_name, save_dir=settings.OUTPUT_DIR):
 
 def save_model(model, model_path):
     joblib.dump(model, model_path)
+
+
+def check_if_artifact_exists(
+    artifact_name,
+    project=settings.SETTINGS["WANDB_PROJECT"],
+    entity= settings.SETTINGS["WANDB_ENTITY"],
+):
+    try:
+        get_artifact(artifact_name, project, entity)
+
+        return True
+    except wandb.errors.CommError:
+        return False
+
+
+def get_artifact(
+    artifact_name,
+    project=settings.SETTINGS["WANDB_PROJECT"],
+    entity=settings.SETTINGS["WANDB_ENTITY"],
+):
+    api = wandb.Api()
+    artifact = api.artifact(f"{entity}/{project}/{artifact_name}:latest")
+
+    return artifact
