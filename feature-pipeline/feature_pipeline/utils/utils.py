@@ -11,9 +11,7 @@ def get_logger(name):
 
     return logger
 
-
 def save_json(data, file_name, save_dir=settings.OUTPUT_DIR):
-
     data_path = Path(save_dir) / file_name
     with open(data_path, "w") as f:
         json.dump(data, f)

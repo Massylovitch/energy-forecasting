@@ -16,13 +16,13 @@ def create(
         feature_group_version = feature_pipeline_metadata["feature_group_version"]
 
     if start_datetime is None or end_datetime is None:
-        feature_group_metadata = utils.load_json("feature_pipeline_metadata.json")
+        feature_pipeline_metadata = utils.load_json("feature_pipeline_metadata.json")
         start_datetime = datetime.strptime(
-            feature_group_metadata["export_datetime_utc_start"],
+            feature_pipeline_metadata["export_datetime_utc_start"],
             feature_pipeline_metadata["datetime_format"],
         )
         end_datetime = datetime.strptime(
-            feature_group_metadata["export_datetime_utc_end"],
+            feature_pipeline_metadata["export_datetime_utc_end"],
             feature_pipeline_metadata["datetime_format"],
         )
 
