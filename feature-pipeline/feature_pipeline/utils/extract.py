@@ -7,7 +7,9 @@ from pandas.errors import EmptyDataError
 
 logger = utils.get_logger(__name__)
 
+
 def from_file(
+    export_end_reference_datetime=None,
     days_delay: int = 15,
     days_export: int = 30,
     url: str = "https://drive.google.com/uc?export=download&id=1y48YeDymLurOTUO-GeFOUXVNc9MCApG5",
@@ -16,7 +18,9 @@ def from_file(
 ):
 
     export_start, export_end = _compute_extraction_window(
-        days_delay=days_delay, days_export=days_export
+        export_end_reference_datetime=export_end_reference_datetime,
+        days_delay=days_delay,
+        days_export=days_export,
     )
     records = _extract_records_from_file_url(
         url=url,
@@ -35,8 +39,9 @@ def from_file(
         "datetime_format": datetime_format,
         "num_unique_samples_per_time_series": len(records["HourUTC"].unique()),
     }
-    
+
     return records, metadata
+
 
 def _extract_records_from_file_url(
     url, export_start, export_end, datetime_format, cache_dir=None
@@ -61,7 +66,9 @@ def _extract_records_from_file_url(
             return None
 
         if response.status_code != 200:
-            raise ValueError(f"Response status = {response.status_code}. Could not download the file.")
+            raise ValueError(
+                f"Response status = {response.status_code}. Could not download the file."
+            )
 
         with file_path.open("w") as f:
             f.write(response.text)
@@ -75,17 +82,43 @@ def _extract_records_from_file_url(
     except EmptyDataError:
         file_path.unlink(missing_ok=True)
 
-        raise ValueError(f"Downloaded file at {file_path} is empty. Could not load it into a DataFrame.")
+        raise ValueError(
+            f"Downloaded file at {file_path} is empty. Could not load it into a DataFrame."
+        )
 
-    records = data[(data["HourUTC"] >= export_start.strftime(datetime_format)) & (data["HourUTC"] < export_end.strftime(datetime_format))]
+    records = data[
+        (data["HourUTC"] >= export_start.strftime(datetime_format))
+        & (data["HourUTC"] < export_end.strftime(datetime_format))
+    ]
 
     return records
 
 
-def _compute_extraction_window(days_delay, days_export):
+def _compute_extraction_window(export_end_reference_datetime, days_delay, days_export):
 
-    # The dataset is limited to up to July 2023.
-    export_end_reference_datetime = datetime.datetime(2023, 6, 30, 21, 0, 0)
+    if export_end_reference_datetime is None:
+        # The dataset is limited to up to July 2023.
+        export_end_reference_datetime = datetime.datetime(2023, 6, 30, 21, 0, 0)
+
+        export_end = export_end_reference_datetime - datetime.timedelta(days=days_delay)
+        export_start = export_end_reference_datetime - datetime.timedelta(
+            days=days_delay + days_export
+        )
+    else:
+        export_end_reference_datetime = export_end_reference_datetime.replace(
+            minute=0, second=0, microsecond=0
+        )
+
+    expiring_dataset_datetime = datetime.datetime(
+        2023, 6, 30, 21, 0, 0
+    ) + datetime.timedelta(days=days_delay)
+    if export_end_reference_datetime > expiring_dataset_datetime:
+        export_end_reference_datetime = expiring_dataset_datetime
+
+        logger.warning(
+            "We clapped 'export_end_reference_datetime' to 'datetime(2023, 6, 30) + datetime.timedelta(days=days_delay)' as \
+        the dataset will not be updated starting from July 2023. The dataset will expire during 2023."
+        )
 
     export_end = export_end_reference_datetime - datetime.timedelta(days=days_delay)
     export_start = export_end_reference_datetime - datetime.timedelta(
