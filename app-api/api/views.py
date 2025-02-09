@@ -8,12 +8,12 @@ from api import schemas
 
 fs = gcsfs.GCSFS(
     project=get_settings().GCP_PROJECT,
-    token=get_settings().GCP_SERVICE_ACCOUNT_JSON_PATH
+    token=get_settings().GCP_SERVICE_ACCOUNT_JSON_PATH,
 )
 
 
-
 api_router = APIRouter()
+
 
 @api_router.get("/health", response_model=schemas.Health, status_code=200)
 def health():
@@ -24,7 +24,9 @@ def health():
     return health_data.dict()
 
 
-@api_router.get("/consumer_type_values", response_model=schemas.UniqueConsumerType, status_code=200)
+@api_router.get(
+    "/consumer_type_values", response_model=schemas.UniqueConsumerType, status_code=200
+)
 def consumer_type_values():
 
     X = pd.read_parquet(f"{get_settings().GCP_BUCKET}/X.parquet", filesystem=fs)
@@ -44,8 +46,11 @@ def area_values():
     return {"values": unique_area}
 
 
-
-@api_router.get("/predictions/{area}/{consumer_type}", response_model=schemas.PredictionResults, status_code=200)
+@api_router.get(
+    "/predictions/{area}/{consumer_type}",
+    response_model=schemas.PredictionResults,
+    status_code=200,
+)
 async def get_predictions(area, consumer_type):
 
     train_df = pd.read_parquet(f"{get_settings().GCP_BUCKET}/y.parquet", filesystem=fs)
@@ -61,13 +66,13 @@ async def get_predictions(area, consumer_type):
             status_code=404,
             detail=f"No data found for the given area and consumer type: {area}, {consumer_type}",
         )
-    
+
     if len(train_df) == 0 or len(preds_df) == 0:
         raise HTTPException(
             status_code=404,
             detail=f"No data found for the given area and consumer type: {area}, {consumer_type}",
         )
-    
+
     train_df = train_df.sort_index().tail(24 * 7)
 
     datetime_utc = train_df.index.get_level_values("datetime_utc").to_list()
@@ -86,7 +91,11 @@ async def get_predictions(area, consumer_type):
     return results
 
 
-@api_router.get("/monitoring/metrics", response_model=schemas.MonitoringMetrics, status_code=200,)
+@api_router.get(
+    "/monitoring/metrics",
+    response_model=schemas.MonitoringMetrics,
+    status_code=200,
+)
 async def get_metrics():
     metrics = pd.read_parquet(
         f"{get_settings().GCP_BUCKET}/metrics_monitoring.parquet", filesystem=fs
@@ -101,7 +110,11 @@ async def get_metrics():
     }
 
 
-@api_router.get("/monitoring/values/{area}/{consumer_type}", response_model=schemas.MonitoringValues, status_code=200)
+@api_router.get(
+    "/monitoring/values/{area}/{consumer_type}",
+    response_model=schemas.MonitoringValues,
+    status_code=200,
+)
 async def get_predictions(area, consumer_type):
     y_monitoring = pd.read_parquet(
         f"{get_settings().GCP_BUCKET}/y_monitoring.parquet", filesystem=fs

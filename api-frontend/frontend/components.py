@@ -4,7 +4,6 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
-
 def build_data_plot(area, consumer_type):
 
     response = request.get(
@@ -28,7 +27,6 @@ def build_data_plot(area, consumer_type):
         preds_df = build_dataframe(pred_datetime_utc, pred_energy_consumption)
 
         title = "Energy Consumption per DE35 Industry Code per Hour"
-
 
     fig = go.Figure()
     fig.update_layout(

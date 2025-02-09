@@ -107,7 +107,6 @@ def build_data_plot(area, consumer_type):
     return fig
 
 
-
 def build_dataframe(
     datetime_utc,
     energy_consumption_values,

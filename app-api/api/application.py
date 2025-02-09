@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from api.views import api_router
 
+
 def get_app():
 
     app = FastAPI(

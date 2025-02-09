@@ -14,7 +14,7 @@ area = st.selectbox(
     label="Denmark is divided in two price areas, or bidding zones,\
         divided by the Great Belt. DK1 (shown as 1) is west of the Great Belt \
             and DK2 (shown as 2) is east of the Great Belt.",
-    options=area_response.json().get("values", [])
+    options=area_response.json().get("values", []),
 )
 
 consumer_type_response = requests.get(API_URL / "consumer_type_values")
