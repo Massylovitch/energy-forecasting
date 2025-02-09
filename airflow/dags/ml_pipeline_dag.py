@@ -1,4 +1,4 @@
-from airflow.decorators import dag
+from airflow.decorators import dag, task
 from datetime import datetime
 from airflow.utils.trigger_rule import TriggerRule
 from airflow.operators.empty import EmptyOperator
@@ -8,7 +8,7 @@ from airflow.utils.edgemodifier import Label
 
 @dag(
         dag_id="ml_pipeline",
-        schedule="@hourly",
+        schedule="@daily",
         start_date=datetime(2023, 4, 14),
         catchup=False,
         max_active_runs=1,
@@ -36,7 +36,7 @@ def ml_pipeline():
     ):
         from datetime import datetime
         from feature_pipeline import pipeline
-
+        print("DAG RUN", export_end_reference_datetime)
         try:
             export_end_reference_datetime = datetime.strptime(
                 export_end_reference_datetime, "%Y-%m-%d %H:%M:%S.%f%z"
@@ -143,59 +143,59 @@ def ml_pipeline():
             training_dataset_version=feature_view_metadata["training_dataset_version"],
         )
     
-    @task.virtualenv(
-        task_id="compute_monitoring",
-        requirements=[
-            "--trusted-host 172.17.0.1",
-            "--extra-index-url http://172.17.0.1",
-            "batch_prediction_pipeline",
-        ],
-        python_version="3.9",
-        system_site_packages=False,
-    )
-    def compute_monitoring(feature_view_metadata):
-        from batch_prediction_pipeline import monitoring
+    # @task.virtualenv(
+    #     task_id="compute_monitoring",
+    #     requirements=[
+    #         "--trusted-host 172.17.0.1",
+    #         "--extra-index-url http://172.17.0.1",
+    #         "batch_prediction_pipeline",
+    #     ],
+    #     python_version="3.9",
+    #     system_site_packages=False,
+    # )
+    # def compute_monitoring(feature_view_metadata):
+    #     from batch_prediction_pipeline import monitoring
 
-        monitoring.compute(
-            feature_view_version=feature_view_metadata["feature_view_version"],
-        )
+    #     monitoring.compute(
+    #         feature_view_version=feature_view_metadata["feature_view_version"],
+    #     )
 
 
-    @task.virtualenv(
-        task_id="batch_predict",
-        requirements=[
-            "--trusted-host 172.17.0.1",
-            "--extra-index-url http://172.17.0.1",
-            "batch_prediction_pipeline",
-        ],
-        python_version="3.9",
-        system_site_packages=False,
-    )
-    def batch_predict(
-        feature_view_metadata,
-        train_metadata,
-        feature_pipeline_metadata,
-        fh,
-    ):
-        from date import datetime
-        from batch_prediction_pipeline import batch
+    # @task.virtualenv(
+    #     task_id="batch_predict",
+    #     requirements=[
+    #         "--trusted-host 172.17.0.1",
+    #         "--extra-index-url http://172.17.0.1",
+    #         "batch_prediction_pipeline",
+    #     ],
+    #     python_version="3.9",
+    #     system_site_packages=False,
+    # )
+    # def batch_predict(
+    #     feature_view_metadata,
+    #     train_metadata,
+    #     feature_pipeline_metadata,
+    #     fh=24,
+    # ):
+    #     from date import datetime
+    #     from batch_prediction_pipeline import batch
 
-        start_datetime = datetime.strptime(
-            feature_pipeline_metadata["export_datetime_utc_start"],
-            feature_pipeline_metadata["datetime_format"],
-        )
-        end_datetime = datetime.strptime(
-            feature_pipeline_metadata["export_datetime_utc_end"],
-            feature_pipeline_metadata["datetime_format"],
-        )
+    #     start_datetime = datetime.strptime(
+    #         feature_pipeline_metadata["export_datetime_utc_start"],
+    #         feature_pipeline_metadata["datetime_format"],
+    #     )
+    #     end_datetime = datetime.strptime(
+    #         feature_pipeline_metadata["export_datetime_utc_end"],
+    #         feature_pipeline_metadata["datetime_format"],
+    #     )
 
-        batch.predict(
-            fh=fh,
-            feature_view_version=feature_view_metadata["feature_view_version"],
-            model_version=train_metadata["model_version"],
-            start_datetime=start_datetime,
-            end_datetime=end_datetime,
-        )
+    #     batch.predict(
+    #         fh=fh,
+    #         feature_view_version=feature_view_metadata["feature_view_version"],
+    #         model_version=train_metadata["model_version"],
+    #         start_datetime=start_datetime,
+    #         end_datetime=end_datetime,
+    #     )
 
     @task.branch(task_id="if_run_hyperparameter_tuning_branching")
     def if_run_hyperparameter_tuning_branching(run_hyperparameter_tuning):
@@ -236,7 +236,6 @@ def ml_pipeline():
         feature_group_version=feature_group_version,
     )
     feature_view_metadata = create_feature_view(feature_pipeline_metadata)
-
     if_run_hyperparameter_tuning_branch = if_run_hyperparameter_tuning_branching(
         should_run_hyperparameter_tuning
     )
@@ -244,10 +243,10 @@ def ml_pipeline():
     upload_best_model_step = upload_best_config(last_sweep_metadata)
     train_metadata = train_from_best_config(feature_view_metadata)
 
-    compute_monitoring_step = compute_monitoring(feature_view_metadata)
-    batch_predict_step = batch_predict(
-        feature_view_metadata, train_metadata, feature_pipeline_metadata
-    )
+    # compute_monitoring_step = compute_monitoring(feature_view_metadata)
+    # batch_predict_step = batch_predict(
+    #     feature_view_metadata, train_metadata, feature_pipeline_metadata
+    # )
 
     (
         feature_view_metadata
@@ -263,8 +262,8 @@ def ml_pipeline():
             >> branch_skip_hyperparameter_tuning_operator
         ]
         >> train_metadata
-        >> compute_monitoring_step
-        >> batch_predict_step
+        # >> compute_monitoring_step
+        # >> batch_predict_step
     )
 
 ml_pipeline()
