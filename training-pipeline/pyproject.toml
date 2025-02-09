@@ -7,15 +7,16 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "~3.9"
-hopsworks = "^4.1.5"
-wandb = "^0.19.5"
-lightgbm = "^4.5.0"
-python-dotenv = "^1.0.1"
-fire = "^0.7.0"
-pyarrow = "^19.0.0"
+hopsworks = "4.1.5"
+joblib = "^1.4.2"
 matplotlib = "3.9"
+lightgbm = "^4.5.0"
+fire = "^0.7.0"
+wandb = "^0.14.0"
 seaborn = "^0.13.2"
-sktime = "0.16.1"
+python-dotenv = "^1.0.1"
+pyarrow = "^19.0.0"
+sktime = "0.16"
 
 
 [build-system]

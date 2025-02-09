@@ -19,12 +19,12 @@ from sktime.utils.plotting import plot_series
 import hopsworks
 
 
-def from_best_config(fh=24, feature_view_version=None, feature_dataset_version=None):
+def from_best_config(fh=24, feature_view_version=None, training_dataset_version=None):
 
     feature_view_metadata = utils.load_json("feature_view_metadata.json")
     if feature_view_version is None:
         feature_view_version = feature_view_metadata["feature_view_version"]
-    if feature_dataset_version is None:
+    if training_dataset_version is None:
         training_dataset_version = feature_view_metadata["training_dataset_version"]
 
     y_train, y_test, X_train, X_test = load_dataset_from_feature_store(
@@ -41,7 +41,7 @@ def from_best_config(fh=24, feature_view_version=None, feature_dataset_version=N
     with utils.init_wandb_run(
         name="best_model",
         job_type="train_best_model",
-        group="trian",
+        group="train",
         reinit=True,
         add_timestamp_to_name=True,
     ) as run:
@@ -78,7 +78,6 @@ def from_best_config(fh=24, feature_view_version=None, feature_dataset_version=N
         results = OrderedDict({"y_train": y_train, "y_test": y_test, "y_pred": y_pred})
         render(results, prefix="images_test")
 
-
         best_forecaster = train_model(
             model=best_forecaster,
             y_train=pd.concat([y_train, y_test]).sort_index(),
@@ -87,7 +86,7 @@ def from_best_config(fh=24, feature_view_version=None, feature_dataset_version=N
         )
         X_forecast = compute_forecast_exogenous_variables(X_test, fh)
         y_forecast = forecast(best_forecaster, X_forecast)
-        
+
         results = OrderedDict(
             {
                 "y_train": y_train,
@@ -126,6 +125,7 @@ def from_best_config(fh=24, feature_view_version=None, feature_dataset_version=N
     utils.save_json(metadata, file_name="train_metadata.json")
 
     return metadata
+
 
 def train_model(model, y_train, X_train, fh):
 
@@ -220,16 +220,13 @@ def render(
 
 
 def compute_forecast_exogenous_variables(X_test, fh):
-
     X_forecast = X_test.copy()
-    X_forecast.index.set_levels(
-        X_forecast.index.levels[-1] + fh, level=-1, inplace=True
-    )
+    X_forecast = X_forecast.index.set_levels(X_forecast.index.levels[-1] + fh, level=-1)
 
     return X_forecast
 
-def forecast(forecaster, X_forecast):
 
+def forecast(forecaster, X_forecast):
     return forecaster.predict(X=X_forecast)
 
 
@@ -248,7 +245,6 @@ def add_best_model_to_model_registry(best_model_artifact):
     py_model.save(best_model_path)
 
     return py_model.version
-
 
 
 if __name__ == "__main__":
