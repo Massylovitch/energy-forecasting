@@ -125,10 +125,10 @@ def save_for_monitoring(predictions, start_datetime):
     has_cached_predictions = cached_predictions is not None
     if has_cached_predictions is True:
         
-        cached_predictions.index = cached_predictions.index.set_levels(
-            pd.to_datetime(cached_predictions.index.levels[2], unit="h").to_period("H"),
-            level=2,
-        )
+        # cached_predictions.index = cached_predictions.index.set_levels(
+        #     pd.to_datetime(cached_predictions.index.levels[2], unit="h").to_period("H"),
+        #     level=2,
+        # )
 
         merged_predictions = predictions.merge(
             cached_predictions,

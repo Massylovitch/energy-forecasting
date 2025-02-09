@@ -79,9 +79,10 @@ def compute(feature_view_version=None):
         data=metrics,
     )
 
-    latest_observations = latest_observations.raname(
-        columns={"energy_comsumption_observations": "energy_consumption"}
+    latest_observations = latest_observations.rename(
+        columns={"energy_consumption_observations": "energy_consumption"}
     )
+
     utils.write_blob_to(
         bucket=bucket,
         blob_name="y_monitoring.parquet",
