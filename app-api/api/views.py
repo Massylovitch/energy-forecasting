@@ -6,7 +6,7 @@ from api.config import get_settings
 from api import schemas
 
 
-fs = gcsfs.GCSFS(
+fs = gcsfs.GCSFileSystem(
     project=get_settings().GCP_PROJECT,
     token=get_settings().GCP_SERVICE_ACCOUNT_JSON_PATH,
 )

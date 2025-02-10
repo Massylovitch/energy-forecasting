@@ -14,6 +14,7 @@ def get_app():
         openapi_url=f"/api/{get_settings().VERSION}/openapi.json",
     )
 
+    # for demo purposes, allow all origins.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
