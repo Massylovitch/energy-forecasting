@@ -121,7 +121,7 @@ async def get_metrics():
     response_model=schemas.MonitoringValues,
     status_code=200,
 )
-async def get_predictions(area, consumer_type):
+async def get_predictions(area:int, consumer_type:int):
     y_monitoring = pd.read_parquet(
         f"{get_settings().GCP_BUCKET}/y_monitoring.parquet", filesystem=fs
     )
@@ -150,13 +150,19 @@ async def get_predictions(area, consumer_type):
 
     y_monitoring = y_monitoring.reset_index()
     y_monitoring["datetime_utc"] = y_monitoring["datetime_utc"].dt.to_timestamp()
-    y_monitoring_datetime_utc = y_monitoring.index["datetime_utc"].to_list()
+    y_monitoring_datetime_utc = y_monitoring["datetime_utc"].to_list()
     y_monitoring_energy_consumption = y_monitoring["energy_consumption"].to_list()
 
-    predictions_monitoring_datetime_utc = predictions_monitoring_datetime_utc.reset_index()
-    predictions_monitoring_datetime_utc["datetime_utc"] = predictions_monitoring_datetime_utc["datetime_utc"].dt.to_timestamp()
-    predictions_monitoring_datetime_utc = predictions_monitoring["datetime_utc"].to_list()
-    predictions_monitoring_energy_consumptionc = predictions_monitoring[
+    predictions_monitoring = (
+        predictions_monitoring.reset_index()
+    )
+    predictions_monitoring["datetime_utc"] = (
+        predictions_monitoring["datetime_utc"].dt.to_timestamp()
+    )
+    predictions_monitoring_datetime_utc = predictions_monitoring[
+        "datetime_utc"
+    ].to_list()
+    predictions_monitoring_energy_consumption = predictions_monitoring[
         "energy_consumption"
     ].to_list()
 
@@ -164,7 +170,7 @@ async def get_predictions(area, consumer_type):
         "y_monitoring_datetime_utc": y_monitoring_datetime_utc,
         "y_monitoring_energy_consumption": y_monitoring_energy_consumption,
         "predictions_monitoring_datetime_utc": predictions_monitoring_datetime_utc,
-        "predictions_monitoring_energy_consumptionc": predictions_monitoring_energy_consumptionc,
+        "predictions_monitoring_energy_consumption": predictions_monitoring_energy_consumption,
     }
 
     return results

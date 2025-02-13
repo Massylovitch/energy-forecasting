@@ -20,4 +20,4 @@ class MonitoringValues(BaseModel):
     y_monitoring_datetime_utc: List[datetime]
     y_monitoring_energy_consumption: List[float]
     predictions_monitoring_datetime_utc: List[datetime]
-    predictions_monitoring_energy_consumptionc: List[float]
+    predictions_monitoring_energy_consumption: List[float]
