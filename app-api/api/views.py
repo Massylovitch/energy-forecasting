@@ -51,7 +51,7 @@ def area_values():
     response_model=schemas.PredictionResults,
     status_code=200,
 )
-async def get_predictions(area, consumer_type):
+async def get_predictions(area: int, consumer_type: int):
 
     train_df = pd.read_parquet(f"{get_settings().GCP_BUCKET}/y.parquet", filesystem=fs)
     preds_df = pd.read_parquet(
@@ -73,12 +73,16 @@ async def get_predictions(area, consumer_type):
             detail=f"No data found for the given area and consumer type: {area}, {consumer_type}",
         )
 
-    train_df = train_df.sort_index().tail(24 * 7)
-
-    datetime_utc = train_df.index.get_level_values("datetime_utc").to_list()
+    train_df = train_df.sort_index().tail(24 * 7).reset_index()
+    train_df["datetime_utc"] = train_df["datetime_utc"].dt.to_timestamp()
+    datetime_utc = train_df.datetime_utc.to_list()
     energy_consumption = train_df["energy_consumption"].to_list()
 
-    preds_datetime_utc = preds_df.index.get_level_values("datetime_utc").to_list()
+    preds_df = preds_df.reset_index()
+    preds_df["datetime_utc"] = preds_df["datetime_utc"].dt.to_timestamp()
+
+    preds_df = preds_df
+    preds_datetime_utc = preds_df.datetime_utc.to_list()
     preds_energy_consumption = preds_df["energy_consumption"].to_list()
 
     results = {
@@ -101,6 +105,8 @@ async def get_metrics():
         f"{get_settings().GCP_BUCKET}/metrics_monitoring.parquet", filesystem=fs
     )
 
+    metrics = metrics.reset_index()
+    metrics["datetime_utc"] = metrics["datetime_utc"].dt.to_timestamp()
     datetime_utc = metrics.index.to_list()
     mape = metrics["MAPE"].to_list()
 
@@ -142,14 +148,14 @@ async def get_predictions(area, consumer_type):
             detail=f"No data found for the given area and consumer type: {area}, {consumer_type}",
         )
 
-    y_monitoring_datetime_utc = y_monitoring.index.get_level_values(
-        "datetime_utc"
-    ).to_list()
+    y_monitoring = y_monitoring.reset_index()
+    y_monitoring["datetime_utc"] = y_monitoring["datetime_utc"].dt.to_timestamp()
+    y_monitoring_datetime_utc = y_monitoring.index["datetime_utc"].to_list()
     y_monitoring_energy_consumption = y_monitoring["energy_consumption"].to_list()
 
-    predictions_monitoring_datetime_utc = predictions_monitoring.index.get_level_values(
-        "datetime_utc"
-    ).to_list()
+    predictions_monitoring_datetime_utc = predictions_monitoring_datetime_utc.reset_index()
+    predictions_monitoring_datetime_utc["datetime_utc"] = predictions_monitoring_datetime_utc["datetime_utc"].dt.to_timestamp()
+    predictions_monitoring_datetime_utc = predictions_monitoring["datetime_utc"].to_list()
     predictions_monitoring_energy_consumptionc = predictions_monitoring[
         "energy_consumption"
     ].to_list()
