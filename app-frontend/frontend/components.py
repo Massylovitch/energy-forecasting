@@ -2,11 +2,12 @@ import requests
 
 import pandas as pd
 import plotly.graph_objects as go
+from settings import API_URL
 
 
 def build_data_plot(area, consumer_type):
 
-    response = request.get(
+    response = requests.get(
         API_URL / "predictions" / f"{area}" / f"{consumer_type}", verify=False
     )
 
@@ -33,7 +34,7 @@ def build_data_plot(area, consumer_type):
         title=dict(
             text=title,
         ),
-        show_legend=True,
+        showlegend=True,
     )
 
     fig.update_xaxes(title_text="Datetime UTC")
@@ -60,10 +61,10 @@ def build_dataframe(datetime_utc, energy_consumption_values):
         list(zip(datetime_utc, energy_consumption_values)),
         columns=["datetime_utc", "energy_consumption"],
     )
-    df["datetime_utc"] = pd.to_datetime(df["datetime_utc"], unit="h")
+    df["datetime_utc"] = pd.to_datetime(df["datetime_utc"])
 
     df = df.set_index("datetime_utc")
-    df = df.resample("H").asfreq()
+    df = df.resample("h").asfreq()
     df = df.reset_index()
 
     return df
