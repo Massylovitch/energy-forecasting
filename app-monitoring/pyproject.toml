@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "$"
+name = "app-monitoring"
 version = "0.1.0"
 description = ""
 authors = ["Massyl GH <massyl-6@hotmail.fr>"]

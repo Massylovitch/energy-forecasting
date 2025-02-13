@@ -46,6 +46,7 @@ def build_data_plot(area, consumer_type):
     response = requests.get(
         API_URL / "monitoring" / "values" / f"{area}" / f"{consumer_type}", verify=False
     )
+
     if response.status_code != 200:
         train_df = build_dataframe([], [])
         preds_df = build_dataframe([], [])
@@ -61,8 +62,8 @@ def build_data_plot(area, consumer_type):
         predictions_monitoring_datetime_utc = json_response.get(
             "predictions_monitoring_datetime_utc", []
         )
-        predictions_monitoring_energy_consumptionc = json_response.get(
-            "predictions_monitoring_energy_consumptionc", []
+        predictions_monitoring_energy_consumption = json_response.get(
+            "predictions_monitoring_energy_consumption", []
         )
 
         train_df = build_dataframe(
@@ -70,7 +71,7 @@ def build_data_plot(area, consumer_type):
         )
         preds_df = build_dataframe(
             predictions_monitoring_datetime_utc,
-            predictions_monitoring_energy_consumptionc,
+            predictions_monitoring_energy_consumption,
         )
 
         title = "Predictions vs. Observations | Energy Consumption"
@@ -116,10 +117,10 @@ def build_dataframe(
         list(zip(datetime_utc, energy_consumption_values)),
         columns=["datetime_utc", values_column_name],
     )
-    df["datetime_utc"] = pd.to_datetime(df["datetime_utc"], unit="h")
+    df["datetime_utc"] = pd.to_datetime(df["datetime_utc"])
 
     df = df.set_index("datetime_utc")
-    df = df.resample("H").asfreq()
+    df = df.resample("h").asfreq()
     df = df.reset_index()
 
     return df
