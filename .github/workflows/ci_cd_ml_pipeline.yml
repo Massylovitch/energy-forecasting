@@ -8,6 +8,7 @@ on:
       - '**/*.yml'
       - '**/*.md'
     branches: [ "main" ]
+  workflow_dispatch:
     
 env:
   GCLOUD_PROJECT: '${{ vars.GCLOUD_PROJECT }}'
