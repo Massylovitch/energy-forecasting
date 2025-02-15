@@ -30,7 +30,6 @@ jobs:
         uses: 'google-github-actions/ssh-compute@v1'
         with:
           project_id: '${{ env.GCLOUD_PROJECT }}'
-          user: '${{ env.USER }}'
           instance_name: '${{ env.INSTANCE_NAME }}'
           zone: '${{ env.ZONE }}'
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
