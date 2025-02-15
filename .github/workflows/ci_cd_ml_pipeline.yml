@@ -26,7 +26,7 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
       - id: 'compute-ssh'
-        uses: 'google-github-actions/ssh-compute@v0'
+        uses: 'google-github-actions/ssh-compute@v1'
         with:
           project_id: '${{ env.GCLOUD_PROJECT }}'
           user: '${{ env.USER }}'
